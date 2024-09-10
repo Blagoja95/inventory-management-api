@@ -1,0 +1,42 @@
+{
+  "milk": {
+    "id": "240591234123",
+    "quantity": 10,
+    "measurement": {
+      "name": "liter",
+      "symbol": "L"
+    },
+    "price": 10,
+    "description": "Healthy fresh organic milk"
+  },
+  "coffee": {
+    "id": "210491231123",
+    "quantity": 100,
+    "measurement": {
+      "name": "kilogram",
+      "symbol": "kg"
+    },
+    "price": 16,
+    "description" : "Brazilian coffee"
+  },
+  "apples": {
+    "id": "140591234123",
+    "quantity": 1000,
+    "measurement": {
+      "name": "kilogram",
+      "symbol": "kg"
+    },
+    "price": 1,
+    "description" : "Granny Smith"
+  },
+  "chicken breasts" : {
+    "id": "040511234120",
+    "quantity": 56,
+    "measurement": {
+      "name": "kilogram",
+      "symbol": "kg"
+    },
+    "price": 9.99,
+    "description" : "Old McDonald had a farm"
+  }
+}
