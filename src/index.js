@@ -10,7 +10,7 @@ const HOSTNAME = process.env.NODE_HOSTNAME || '127.0.0.1';
 const PORT = process.env.NODE_PORT || 5000;
 const dbMw = new DatabaseMiddleware(process.env.DB_NAME);
 
-const server = createServer((req, res) => {
+const server = createServer(async (req, res) => {
     const resHandler = new ResponseHandler(res);
     const url = req.url.split('/');
 
@@ -50,9 +50,12 @@ const server = createServer((req, res) => {
                     resHandler.notFound();
                 }
 
-            } else if (req.method === 'POST') {
-                invCntrl.createUser(resHandler);
-            } else if (req.method === 'PATCH') {
+            } else if (url[1] === 'create' && req.method === 'POST')
+            {
+              await invCntrl.createUser(resHandler);
+            }
+            else if (req.method === 'PATCH')
+            {
 
             } else if (req.method === 'DELETE') {
 

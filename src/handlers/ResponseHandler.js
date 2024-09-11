@@ -28,6 +28,13 @@ module.exports = class ResponseHandler {
         this._resObj.end();
     }
 
+    conflict(msg)
+    {
+        this._resObj.statusCode = 409;
+        this._resObj.setHeader('Content-Type', 'application/json')
+        this._resObj.end(JSON.stringify({info : msg}));
+    }
+
     internalServerError(msg)
     {
         this._resObj.statusCode = 500;
