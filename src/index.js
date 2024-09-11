@@ -43,7 +43,6 @@ const server = createServer(async (req, res) => {
                         {
                             resHandler.badRequest('name value empty or too short');
                         }
-
                     }
                 else
                 {
@@ -52,13 +51,17 @@ const server = createServer(async (req, res) => {
 
             } else if (url[1] === 'create' && req.method === 'POST')
             {
-              await invCntrl.createUser(resHandler);
+              await invCntrl.createItem(resHandler);
             }
-            else if (req.method === 'PATCH')
+            else if (url[1] === 'update' && req.method === 'PUT')
             {
+                await invCntrl.updateItem(resHandler);
+            }
+            else if (url[1] === 'delete' && req.method === 'DELETE')
+            {
+                await invCntrl.deleteItem(resHandler);
 
-            } else if (req.method === 'DELETE') {
-
+                // TODO: delete item property
             }
 
 
