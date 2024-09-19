@@ -1,53 +1,73 @@
 const DatabaseMiddleware = require('../database/DatabaseMiddleware');
-module.exports = class InventoryController {
-    _reqObj = null;
+
+module.exports = class InventoryController
+{
     _BARCODE_LENGTH = 12;
     _dbMiddleware = null;
 
-    constructor(req) {
-        if((!req || typeof req !== 'object'))
-            throw new Error('Response object must be provided!');
-
-        this._reqObj = req;
+    constructor()
+    {
         this._dbMiddleware = new DatabaseMiddleware(process.env.DB_NAME);
     }
 
-    async createItem(resHandlerObj)
+    getAll(req, res)
     {
-        try {
-            const body = await this._getBody();
+        res.status(200).json(this._dbMiddleware.parsedInMemoryJSON);
+    }
 
-            if(!body['productName'] || typeof body.productName !== 'string' || body.productName.length < 3)
-            {
-                return resHandlerObj.badRequest('name parameter value is missing or it is a empty string');
-            }
-
-            if (Object.keys(this._dbMiddleware.getItemByName(body.productName)).length !== 0)
-            {
-                return resHandlerObj.conflict('item ' + body.productName + ' already exists')
-            }
-
-            const itemBody = {
-                id: this._generateBarCode(),
-                quantity: body?.quantity ?? 0,
-                measurement: {
-                    name: body?.measurement?.name ?? '',
-                    symbol: body?.measurement?.symbol ?? '',
-                },
-                price: body?.price ?? 0,
-                description: body?.description ?? '',
-            };
-
-            if(this._dbMiddleware.createItem(body.productName, itemBody) === 1)
-            {
-                return resHandlerObj.ok(JSON.stringify(itemBody));
-            }
-
-            resHandlerObj.internalServerError('something went wrong');
-        }
-        catch (e)
+    getById(req, res)
+    {
+        if(req?.params?.id === undefined)
         {
-            console.error(e)
+            // missing param
+        }
+
+        if(Number.isInteger(parseInt(req.params.id)))
+        {
+            // must be proper barcode number
+        }
+
+        res.status(200).json(this._dbMiddleware.getItemById(req.params.id));
+    }
+
+    getByName(req, res)
+    {
+        res.status(200).json(this._dbMiddleware.getItemByName(req.params.name));
+    }
+
+    getItemsCount(req, res)
+    {
+        res.status(200).json({inventory_articles: this._dbMiddleware.count});
+    }
+
+    createItem(req, res)
+    {
+        const {body} = req;
+
+        if (!body['productName'] || typeof body.productName !== 'string' || body.productName.length < 3)
+        {
+            res.status(400).json({ info: 'name parameter value is missing or it is a empty string'});
+        }
+
+        if (Object.keys(this._dbMiddleware.getItemByName(body.productName)).length !== 0)
+        {
+            res.status(409).json({info: 'item ' + body.productName + ' already exists'})
+        }
+
+        const itemBody = {
+            id: this._generateBarCode(),
+            quantity: body?.quantity ?? 0,
+            measurement: {
+                name: body?.measurement?.name ?? '',
+                symbol: body?.measurement?.symbol ?? '',
+            },
+            price: body?.price ?? 0,
+            description: body?.description ?? '',
+        };
+
+        if (this._dbMiddleware.createItem(body.productName, itemBody) === 1)
+        {
+            res.status(200).json(itemBody);
         }
     }
 

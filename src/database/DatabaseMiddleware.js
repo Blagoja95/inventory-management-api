@@ -23,7 +23,7 @@ module.exports = class DatabaseMiddleware {
 
     get count()
     {
-        return Object.keys().length;
+        return Object.keys(this._parsedInMemoryJSON).length;
     }
 
     set parseInMemoryJSON(obj)
@@ -40,11 +40,6 @@ module.exports = class DatabaseMiddleware {
 
     getItemByName (name)
     {
-        if(typeof name !== 'string')
-        {
-            return {info: "search value must be string"};
-        }
-
         return this.parsedInMemoryJSON[name] ?? {};
     }
 
