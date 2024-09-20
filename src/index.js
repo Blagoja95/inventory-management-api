@@ -33,6 +33,16 @@ app.post('/v1/inventories/create', (req, res, next) =>
     inventoryController.createItem(req, res);
 });
 
+app.delete('/v1/inventories/delete/', (req, res, next) =>
+{
+    inventoryController.deleteItem(req, res);
+});
+
+app.put('/v1/inventories/update', (req, res, next) =>
+{
+    inventoryController.updateItem(req, res);
+});
+
 app.use((req, res, next) =>
 {
     res.status(404).json({ error: 'Not Found', message: 'The requested URL was not found on the server' });

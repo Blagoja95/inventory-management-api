@@ -1,4 +1,5 @@
 const DatabaseMiddleware = require('../database/DatabaseMiddleware');
+const e = require("express");
 
 module.exports = class InventoryController
 {
@@ -67,79 +68,73 @@ module.exports = class InventoryController
 
         if (this._dbMiddleware.createItem(body.productName, itemBody) === 1)
         {
-            res.status(200).json(itemBody);
+            res.status(201).json(itemBody);
         }
     }
 
-    async updateItem(resHandlerObj)
+     updateItem(req, res)
     {
-        let res = null;
+        const {body} = req;
+        let result;
 
-        try
+        if(!body['productName'] || typeof body.productName !== 'string' || body.productName.length < 3)
         {
-            const body = await this._getBody();
-
-            if(!body['productName'] || typeof body.productName !== 'string' || body.productName.length < 3)
+            if(!body['id'] || typeof body.id !== 'string' || body.id.length < 12)
             {
-                if(!body['id'] || typeof body.id !== 'string' || body.id.length < 12)
-                {
-                    return resHandlerObj.badRequest('provide either product name value or barcode [id] value');
-                }
-
-                if(!body['key'] || !body['value'])
-                {
-                    return resHandlerObj.badRequest("key or value of desired update parameters is missing");
-                }
-
-                res = await this._dbMiddleware.updateByID(body.id, body.key, body.value);
-            }
-            else
-            {
-                res = this._dbMiddleware.updateByName(body.productName, body.key, body.value);
+                res.status(400).json({info: 'provide either product name value or barcode [id] value'});
             }
 
-            if(res.status === 1)
+            if(!body['key'] || !body['value'])
             {
-                return resHandlerObj.ok(JSON.stringify(res.data));
+                res.status(400).json({info: "key or value of desired update parameters is missing"});
             }
-            //TODO: other cases
 
-            resHandlerObj.internalServerError('something went wrong');
+            result = this._dbMiddleware.updateByID(body.id, body.key, body.value);
         }
-        catch (e)
+        else
         {
-            console.error(e);
+            result = this._dbMiddleware.updateByName(body.productName, body.key, body.value);
         }
+
+        res.status(200).json(result.data);
     }
 
-    async deleteItem(resHandlerObj)
+     deleteItem(req, res)
     {
-        try
-        {
-            const body = await this._getBody();
+        const {body} = req;
 
-            if(!body['productName'] || typeof body.productName !== 'string' || body.productName.length < 3)
+        if(!body['productName'] || typeof body.productName !== 'string' || body.productName.length < 3)
+        {
+            if(!body['id'] || typeof body.id !== 'string' || body.id.length < 12)
             {
-                return resHandlerObj.badRequest('name parameter value is missing or it is a empty string');
+                res.status(400).json({info: 'provide either product name value or barcode [id] value'});
             }
 
-            // TODO: delete by barcode id
+            const item = Object.keys(this._dbMiddleware.getItemById(body.id, true));
 
+            if (item.length === 0)
+            {
+                res.status(409).json({info: 'item with barcode [id]: ' + body.id + ' does not exists'});
+            }
+
+
+            if(this._dbMiddleware.deleteByName(item[0]) === 1)
+            {
+                res.status(200)
+                    .json({info: 'item with barcode [id]: ' + body.id + ' and [name]: ' + item[0] +' is now deleted' });
+            }
+        }
+        else
+        {
             if (Object.keys(this._dbMiddleware.getItemByName(body.productName)).length === 0)
             {
-                return resHandlerObj.badRequest('item ' + body.productName + ' does not exists')
+                res.status(409).json({info: 'item ' + body.productName + ' does not exists'});
             }
 
             if(this._dbMiddleware.deleteByName(body.productName) === 1)
             {
-                return resHandlerObj.ok(JSON.stringify({info: 'Item by name ' + body.productName + ' is now deleted' }));
+                res.status(200).json({info: 'Item by name ' + body.productName + ' is now deleted' });
             }
-
-            resHandlerObj.internalServerError('something went wrong');
-        }
-        catch (e)
-        {
-            console.error(e);
         }
     }
 
