@@ -4,7 +4,7 @@
   "description": "testing and learning node js",
   "main": "src/index.js",
   "scripts": {
-    "dev": "nodemon src/index.js",
+    "dev": "NODE_ENV=\"development\" nodemon src/index.js",
     "build": "NODE_ENV=\"production\" node src/index.js"
   },
   "author": "Boris",
