@@ -1,5 +1,5 @@
 const DatabaseMiddleware = require('../database/DatabaseMiddleware');
-const e = require("express");
+const DefaultError = require("../errors/DefaultError");
 
 module.exports = class InventoryController
 {
@@ -18,20 +18,27 @@ module.exports = class InventoryController
 
     getById(req, res)
     {
-        if(req?.params?.id === undefined)
+        if(req.params.id?.length !== 12)
         {
-            // missing param
+            throw new DefaultError('Barcode [id] must be length of 12 digits');
         }
 
-        if(Number.isInteger(parseInt(req.params.id)))
+        if(!Number.isInteger(parseInt(req.params.id)))
         {
-            // must be proper barcode number
+            throw new DefaultError('Barcode [id] must be a number', 400);
         }
 
-        res.status(200).json(this._dbMiddleware.getItemById(req.params.id));
+        const result = this._dbMiddleware.getItemById(req.params.id);
+
+        if(result === -1)
+        {
+            throw new DefaultError('Item with barcode [id]: ' + req.params.id + ' does not exist', 404);
+        }
+
+        res.status(200).json(result);
     }
 
-    getByName(req, res)
+    getByName(req, res, next)
     {
         res.status(200).json(this._dbMiddleware.getItemByName(req.params.name));
     }
@@ -47,12 +54,12 @@ module.exports = class InventoryController
 
         if (!body['productName'] || typeof body.productName !== 'string' || body.productName.length < 3)
         {
-            res.status(400).json({ info: 'name parameter value is missing or it is a empty string'});
+            throw new DefaultError('name parameter value is missing or it is a empty string', 400);
         }
 
         if (Object.keys(this._dbMiddleware.getItemByName(body.productName)).length !== 0)
         {
-            res.status(409).json({info: 'item ' + body.productName + ' already exists'})
+            throw new DefaultError('item ' + body.productName + ' already exists', 409);
         }
 
         const itemBody = {
@@ -70,6 +77,10 @@ module.exports = class InventoryController
         {
             res.status(201).json(itemBody);
         }
+        else
+        {
+            throw new DefaultError();
+        }
     }
 
      updateItem(req, res)
@@ -81,12 +92,12 @@ module.exports = class InventoryController
         {
             if(!body['id'] || typeof body.id !== 'string' || body.id.length < 12)
             {
-                res.status(400).json({info: 'provide either product name value or barcode [id] value'});
+                throw new DefaultError('provide either product name value or barcode [id] value', 400);
             }
 
             if(!body['key'] || !body['value'])
             {
-                res.status(400).json({info: "key or value of desired update parameters is missing"});
+                throw new DefaultError('key or value of desired update parameters is missing', 400);
             }
 
             result = this._dbMiddleware.updateByID(body.id, body.key, body.value);
@@ -107,14 +118,14 @@ module.exports = class InventoryController
         {
             if(!body['id'] || typeof body.id !== 'string' || body.id.length < 12)
             {
-                res.status(400).json({info: 'provide either product name value or barcode [id] value'});
+                throw new DefaultError('provide either product name value or barcode [id] value', 400);
             }
 
             const item = Object.keys(this._dbMiddleware.getItemById(body.id, true));
 
             if (item.length === 0)
             {
-                res.status(409).json({info: 'item with barcode [id]: ' + body.id + ' does not exists'});
+                throw new DefaultError('item with barcode [id]: ' + body.id + ' does not exists', 409);
             }
 
 
@@ -128,7 +139,7 @@ module.exports = class InventoryController
         {
             if (Object.keys(this._dbMiddleware.getItemByName(body.productName)).length === 0)
             {
-                res.status(409).json({info: 'item ' + body.productName + ' does not exists'});
+                throw new DefaultError('item ' + body.productName + ' does not exists', 409);
             }
 
             if(this._dbMiddleware.deleteByName(body.productName) === 1)

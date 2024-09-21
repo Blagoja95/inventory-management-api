@@ -53,7 +53,7 @@ module.exports = class DatabaseMiddleware {
             }
         }
 
-        return {};
+        return -1;
     }
 
     createItem (name, object)
