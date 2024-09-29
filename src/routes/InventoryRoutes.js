@@ -11,7 +11,7 @@ router
     {
         inventoryController.getItemsCount(req, res);
     })
-    .get('/v1/inventories/:id', (req, res, next) =>
+    .get('/v1/inventories/:id(\\d+)', (req, res, next) =>
     {
         inventoryController.getById(req, res);
     })

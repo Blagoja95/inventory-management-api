@@ -40,7 +40,7 @@ module.exports = class DatabaseMiddleware {
 
     getItemByName (name)
     {
-        return this.parsedInMemoryJSON[name] ?? {};
+        return this.parsedInMemoryJSON[name] ?? null;
     }
 
     getItemById (id, withKey = false)

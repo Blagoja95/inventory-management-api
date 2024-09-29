@@ -1,0 +1,51 @@
+version: '3'
+
+services:
+
+  inv-api:
+    build:
+      context: .
+      dockerfile: ./docker/Node.inventories.Dockerfile
+      args:
+        PRODUCTION : ${PRODUCTION}
+    environment:
+      NODE_HOSTNAME: ${NODE_HOSTNAME}
+      DATABASE_URL : 'postgres://postgres:postgres@db:5432/postgres' # TODO: dynamic val
+    ports:
+      - '3000:${NODE_PORT}'
+    volumes:
+      - ./src:/usr/src/app
+      - /usr/src/app/node_modules
+    networks:
+      - inv-network
+
+  db:
+    image: postgres:15-alpine
+    environment:
+      POSTGRES_USER: postgres # TODO: dynamic val
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: postgres
+    ports:
+      - '5432:5432' # TODO: dynamic val
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - inv-network
+
+  pgadmin:
+    image: dpage/pgadmin4:latest
+    environment:
+      PGADMIN_DEFAULT_EMAIL: admin@admin.com # TODO: dynamic val
+      PGADMIN_DEFAULT_PASSWORD: admin # TODO: dynamic val
+    ports:
+      - '5050:80' # TODO: dynamic val
+    depends_on:
+      - db
+    networks:
+      - inv-network
+
+volumes:
+  postgres-data:
+
+networks:
+  inv-network:

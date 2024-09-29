@@ -1,0 +1,9 @@
+node_modules
+npm-debug.log
+Dockerfile
+.dockerignore
+docker-compose.yml
+.gitignore
+README.md
+.env*
+docker

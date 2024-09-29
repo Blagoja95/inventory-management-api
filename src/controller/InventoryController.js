@@ -40,7 +40,24 @@ module.exports = class InventoryController
 
     getByName(req, res, next)
     {
-        res.status(200).json(this._dbMiddleware.getItemByName(req.params.name));
+        if (!req.params['name'])
+        {
+            throw new DefaultError('name parameter missing', 400);
+        }
+
+        if(req.params.name.length < 1)
+        {
+            throw new DefaultError('name value can\'t be empty', 400);
+        }
+
+        const a = this._dbMiddleware.getItemByName(req.params.name)
+
+        if (a === null)
+        {
+            throw new DefaultError('no record with name: ' + req.params.name + ' found', 404);
+        }
+
+        res.status(200).json(a);
     }
 
     getItemsCount(req, res)
