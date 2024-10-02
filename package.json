@@ -7,7 +7,10 @@
     "dev": "NODE_ENV=\"development\" nodemon src/index.js",
     "build": "NODE_ENV=\"production\" node src/index.js"
   },
-  "author": "Boris",
+  "author": {
+    "name": "Boris Blagojević",
+    "email": "boris.blagojevicc@hotmail.com"
+  },
   "license": "ISC",
   "devDependencies": {
     "nodemon": "^3.1.4"

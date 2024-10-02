@@ -1,21 +1,19 @@
-version: '3'
+version: '3.8'
 
 services:
 
   inv-api:
     build:
       context: .
+      target: ${ENV_MODE}
       dockerfile: ./docker/Node.inventories.Dockerfile
-      args:
-        PRODUCTION : ${PRODUCTION}
-    environment:
-      NODE_HOSTNAME: ${NODE_HOSTNAME}
-      DATABASE_URL : 'postgres://postgres:postgres@db:5432/postgres' # TODO: dynamic val
+    env_file:
+      - .env
     ports:
-      - '3000:${NODE_PORT}'
+      - '${NODE_PORT}:${NODE_PORT}'
     volumes:
-      - ./src:/usr/src/app
-      - /usr/src/app/node_modules
+      - ./src:/app/src
+      - /app/node_modules
     networks:
       - inv-network
 

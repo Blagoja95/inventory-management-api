@@ -1,6 +1,5 @@
 const express = require('express');
-const dotenv = require('dotenv')
-    .config();
+require('dotenv').config();
 
 const HOSTNAME = process.env.NODE_HOSTNAME || '127.0.0.1';
 const PORT = process.env.NODE_PORT || 5000;

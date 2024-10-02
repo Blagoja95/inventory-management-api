@@ -1,22 +1,25 @@
-FROM node:18-alpine
+FROM node:18-alpine AS development
 
-WORKDIR /usr/src/app
+WORKDIR /app
 
 COPY package*.json ./
 
-ARG PRODUCTION
+RUN npm install
 
-RUN if [ PRODUCTION === 1 ]; then \
-      npm ci; \
-    else \
-        npm install; \
-    fi
-
-COPY ./src ./
+COPY ./src ./src
 COPY ./data ./data
 
-CMD if [ PRODUCTIOn === 1 ]; then \
-        npm run dev; \
-    else \
-        npm run build; \
-        fi
+CMD npm run dev
+
+FROM node:18-alpine AS production
+
+WORKDIR /app
+
+COPY package*.json ./
+
+RUN npm ci --only=production
+
+COPY ./src ./src
+COPY ./data ./data
+
+CMD npm run build
