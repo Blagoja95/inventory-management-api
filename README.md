@@ -1,12 +1,11 @@
 # How to use
 
-## Install and run
+## Start
 
-First install dependencies and then make a copy of .env file from .env.example
+[Docker](https://www.docker.com/products/docker-desktop/) is required. 
+
 
 ```shell
-npm install
-
 cp .env.example .env
 ```
 
@@ -14,15 +13,24 @@ Then run
 
 In dev mode
 ```shell
-npm run dev
+docker compose up -d --build
 ```
 
-In production
+## Different environments
+
+By default `production` environment is build.
+TO RUN `development` environment go to .env and change property `ENV_MODE` to `development`
+
+THEN RUN
 ```shell
-npm run build
+docker compose up -d --build
 ```
 
 ## Postman
 
 Try this API using Postman
 https://elements.getpostman.com/redirect?entityId=32049441-22ecbf4d-27d8-47b8-a037-d59b0aa9db98&entityType=collection
+
+
+## FOUND ISSUES ?
+Raise and [issue](https://github.com/Blagoja95/inventory-management-api/issues/new) in this repository. 
