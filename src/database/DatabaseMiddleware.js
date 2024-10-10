@@ -1,120 +1,119 @@
+const pg = require('pg');
+const DefaultError = require('../errors/DefaultError');
+
 module.exports = class DatabaseMiddleware {
-    path = '';
-    _inMemoryJSON = null;
-    _fs = require('node:fs');
-
-    constructor(filePath)
+    constructor(table)
     {
-        if(typeof filePath !== "string" || filePath.length === 0 )
+        this.pool = new pg.Pool({
+            host: process.env.POSTGRES_SERVER_NAME,
+            user: process.env.POSTGRES_USERNAME,
+            password: process.env.POSTGRES_PASSWORD,
+            database: process.env.POSTGRES_DB_NAME,
+            port: process.env.POSTGRES_PORT
+        });
+    }
+
+    gtlldt (cb)
+    {
+        this._ckcb(cb);
+
+        this.pool.query('SELECT a.id, a.name, a.price, a.quantity, json_build_object(\'name\', m.name, \'symbol\', m.symbol) AS measurement, a.description ' +
+            'FROM articles AS a FULL JOIN measurements AS m ON a.measurement_id = m.id;', (e, r) => cb(e, r));
+    }
+
+    cnt(cb, tb)
+    {
+        this._ckcb(cb);
+
+        this.pool.query('SELECT COUNT(*) FROM ' + tb, (e, r) => cb(e, r));
+
+        // TODO: use triggers with separate table for counting rows
+    }
+
+    gtbynm(cb, nm, cp)
+    {
+        this._ckcb(cb);
+
+        if(cp)
         {
-            throw new Error("File path should be a string")
+            nm = nm.charAt(0).toUpperCase() + nm.slice(1);
         }
 
-        this.path = filePath;
-
-        this._inMemoryJSON = this._fs.readFileSync(this.path, 'utf-8');
-        this.parseInMemoryJSON = this._inMemoryJSON;
+        this.pool.query('SELECT a.id, a.name, a.price, a.quantity, json_build_object(\'name\', m.name, \'symbol\', m.symbol) AS measurement, a.description FROM articles AS a ' +
+            'FULL JOIN measurements AS m ON a.measurement_id = m.id WHERE a.name = $1;'
+            , [nm]
+            , (e, r) => cb(e, r));
     }
 
-    get allInventory()
+    gtbyd(cb, d)
     {
-        return this._inMemoryJSON;
+        this._ckcb(cb);
+
+        this.pool.query('SELECT a.id, a.name, a.price, a.quantity, json_build_object(\'name\', m.name, \'symbol\', m.symbol) AS measurement, a.description FROM articles AS a ' +
+            'FULL JOIN measurements AS m ON a.measurement_id = m.id WHERE a.id = $1;'
+            , [d]
+            , (e, r) => cb(e, r));
     }
 
-    get count()
+	gt_ll_msrmnts(cb)
+	{
+		this._ckcb(cb);
+
+		this.pool.query('SELECT * FROM measurements'
+		, (e, r) => cb(e, r));
+	}
+
+    _ckcb(cb)
     {
-        return Object.keys(this._parsedInMemoryJSON).length;
-    }
-
-    set parseInMemoryJSON(obj)
-    {
-        this._parsedInMemoryJSON = JSON.parse(obj);
-
-    }
-
-    get parsedInMemoryJSON()
-    {
-        return this._parsedInMemoryJSON;
-    }
-
-
-    getItemByName (name)
-    {
-        return this.parsedInMemoryJSON[name] ?? null;
-    }
-
-    getItemById (id, withKey = false)
-    {
-        for (const key in this.parsedInMemoryJSON)
+        if (!cb || typeof cb !== 'function')
         {
-            if(this.parsedInMemoryJSON[key].id === id)
-            {
-                return withKey ? {[key] : this.parsedInMemoryJSON[key]} : this.parsedInMemoryJSON[key];
-            }
+            throw new DefaultError('cb must be a function', 500);
         }
-
-        return -1;
     }
 
-    createItem (name, object)
+    fndrw(cb, tb, ky, vl)
     {
-        this._parsedInMemoryJSON[name] = object;
+        this._ckcb(cb);
 
-        return this._writeInDB();
+        this.pool.query('SELECT * FROM ' + tb + ' WHERE ' + ky + ' = \'' + vl + '\';'
+        ,(e, r) => cb(e, r));
     }
 
-    _writeInDB()
+    crttm(cb, bdy)
     {
-        this._inMemoryJSON = JSON.stringify(this._parsedInMemoryJSON);
+        this._ckcb(cb);
 
-        try
-        {
-            this._fs.writeFileSync(this.path, this._inMemoryJSON);
-        }
-        catch(e)
-        {
-            console.error(e);
-
-            return -1;
-        }
-
-        return 1;
+        this.pool.query('INSERT INTO articles (id, name, quantity, measurement_id, price, description) ' +
+            'VALUES (' + bdy.id + ', \'' + bdy.name + '\',' + bdy.quantity + ' ,' + bdy.measurement + ' ,' +  bdy.price + ' ,\''  + bdy.description + '\')' +
+            'RETURNING *;'
+            ,(e, r) => cb(e, r));
     }
 
-    updateByName(name, key, value)
+	crtmsrmnt(cb, nm, symbl)
     {
-        this._parsedInMemoryJSON[name][key] = value;
+        this._ckcb(cb);
 
-        const resStatus = this._writeInDB();
-
-        return {
-            status: resStatus,
-            data: resStatus === 1 ? this.getItemByName(name) : null
-        };
+		this.pool.query('INSERT INTO measurements (name, symbol) ' +
+			'VALUES (\'' + nm + '\' ,\'' + symbl + '\')' +
+			'RETURNING *;'
+			,(e, r) => cb(e, r));
     }
 
-    updateByID(id, key, value)
-    {
-        const ob = this.getItemById(id, true);
-        let resStatus = -1;
+	dlt(cb, tb, ky, vl)
+	{
+		this._ckcb(cb);
 
-        if (Object.keys(ob).length > 0)
-        {
-            this._parsedInMemoryJSON[Object.keys(ob)[0]][key] = value;
+		this.pool.query('DELETE FROM ' + tb + ' WHERE ' + ky + ' = \'' + vl +'\';'
+		, (e, r) => cb(e, r));
+	}
 
-            resStatus = this._writeInDB();
-        }
+	pdt_tm(cb, tb, ky, vl, a, b)
+	{
+		this._ckcb(cb);
 
-        return {
-            status: resStatus,
-            data: resStatus === 1 ? this._parsedInMemoryJSON[Object.keys(ob)[0]] : null
-        };
-    }
-
-    deleteByName(name)
-    {
-        delete this._parsedInMemoryJSON[name];
-
-        return this._writeInDB();
-    }
+		this.pool.query('UPDATE ' + tb +
+			' SET ' + a + ' = \'' + b + '\'' +
+			' WHERE ' + ky + ' = \'' + vl +'\' RETURNING *;'
+			, (e, r) => cb(e, r));
+	}
 }

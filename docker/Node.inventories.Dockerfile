@@ -1,4 +1,5 @@
 FROM node:18-alpine AS development
+LABEL author="boris.blagojevicc@hotmail.com"
 
 WORKDIR /app
 
