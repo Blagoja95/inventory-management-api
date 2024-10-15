@@ -1,19 +1,19 @@
-const DatabaseMiddleware = require('../database/DatabaseMiddleware');
+const InventoryDatabase = require('../database/inventory/InventoryDatabase');
 const DefaultError = require("../errors/DefaultError");
 
 module.exports = class InventoryController
 {
     _BARCODE_LENGTH = 12;
-    _dbMiddleware = null;
+_db = null;
 
     constructor()
     {
-        this._dbMiddleware = new DatabaseMiddleware(process.env.DB_NAME);
+        this._db = new InventoryDatabase();
     }
 
-    gtll(req, res, next)
+    gt_ll(req, res, next)
     {
-        this._dbMiddleware.gtlldt((e, r) =>
+        this._db.gt_ll_dt((e, r) =>
         {
             if(e)
             {
@@ -26,14 +26,14 @@ module.exports = class InventoryController
         });
     }
 
-    gtbyd(req, res, next)
+    gt_byd(req, res, next)
     {
         if(req.params.id?.length !== 12)
         {
             throw new DefaultError('Barcode [id] must be length of 12 digits', 400);
         }
 
-        this._dbMiddleware.gtbyd((e, r) =>
+        this._db.gt_byd((e, r) =>
         {
             if(e)
             {
@@ -54,7 +54,7 @@ module.exports = class InventoryController
         }, req.params.id);
     }
 
-    gtbynm(req, res, next)
+    gt_by_nm(req, res, next)
     {
         if (!req.params['name'])
         {
@@ -66,7 +66,7 @@ module.exports = class InventoryController
             throw new DefaultError('name value can\'t be empty', 400);
         }
 
-        this._dbMiddleware.gtbynm((e, r) =>
+        this._db.gt_by_nm((e, r) =>
         {
             if(e)
             {
@@ -89,7 +89,7 @@ module.exports = class InventoryController
 
 	gt_rtcls_cnt(req, res, next)
     {
-        this._dbMiddleware.cnt((e, r) =>
+        this._db.cnt((e, r) =>
         {
             if(e)
             {
@@ -104,7 +104,7 @@ module.exports = class InventoryController
 
 	gt_msrmnts_cnt(req, res, next)
 	{
-		this._dbMiddleware.cnt((e, r) =>
+		this._db.cnt((e, r) =>
 		{
 			if(e)
 			{
@@ -151,7 +151,7 @@ module.exports = class InventoryController
 				break;
 		}
 
-		this._dbMiddleware.fndrw((e, r) =>
+		this._db.fndrw((e, r) =>
 		{
 			if(e)
 			{
@@ -164,7 +164,7 @@ module.exports = class InventoryController
 
 	gt_ll_msrmnts(req, res, next)
 	{
-		this._dbMiddleware.gt_ll_msrmnts((e, r) =>
+		this._db.gt_ll((e, r) =>
 		{
 			if(e)
 			{
@@ -172,10 +172,10 @@ module.exports = class InventoryController
 			}
 
 			res.status(200).json(r.rows);
-		});
+		}, 'measurements');
 	}
 
-    crttm(req, res, next)
+	crt_tm(req, res, next)
     {
         const {body} = req;
 
@@ -189,7 +189,7 @@ module.exports = class InventoryController
             throw new DefaultError('measurement id parameter is missing or it\'s value is empty', 400);
         }
 
-        this._dbMiddleware.fndrw((e, r) =>
+        this._db.fndrw((e, r) =>
         {
             if(e)
             {
@@ -214,7 +214,7 @@ module.exports = class InventoryController
                 description: body?.description ?? '',
             };
 
-            this._dbMiddleware.crttm((e, r) =>
+            this._db.crttm((e, r) =>
             {
                 if(e)
                 {
@@ -229,7 +229,7 @@ module.exports = class InventoryController
         }, 'measurements', 'id', body.measurement_id);
     }
 
-	crtmsrmnt(req, res, next)
+	crt_msrmnt(req, res, next)
 	{
 		const {body} = req;
 
@@ -243,7 +243,7 @@ module.exports = class InventoryController
 			throw new DefaultError('symbol parameter is missing or it\'s value is empty', 400);
 		}
 
-		this._dbMiddleware.crtmsrmnt((e, r) =>
+		this._db.crtmsrmnt((e, r) =>
 		{
 			if(e)
 			{
@@ -300,7 +300,7 @@ module.exports = class InventoryController
 				throw new DefaultError('provide target: what to update [articles, measurements]', 400);
 		}
 
-		this._dbMiddleware.pdt_tm((e, r) =>
+		this._db.pdt_tm((e, r) =>
 		{
 			if(e)
 			{
@@ -313,7 +313,7 @@ module.exports = class InventoryController
 		}, tb, 'id', body['id'], body['key'], body['value']);
 	}
 
-    dlttm(req, res, next)
+	dlt_tm(req, res, next)
     {
         const {body} = req;
 
@@ -324,7 +324,7 @@ module.exports = class InventoryController
                 throw new DefaultError('provide either product name value or barcode [id] value', 400);
             }
 
-            this._dbMiddleware.fndrw((e, r) =>
+            this._db.fndrw((e, r) =>
                 {
                     if(e)
                     {
@@ -342,7 +342,7 @@ module.exports = class InventoryController
 
 					const rn = r.rows[0].name;
 
-                    this._dbMiddleware.dlt((e, r) =>
+                    this._db.dlt((e, r) =>
 					{
 						if(e)
 						{
@@ -359,7 +359,7 @@ module.exports = class InventoryController
         }
         else
         {
-			this._dbMiddleware.fndrw((e, r) =>
+			this._db.fndrw((e, r) =>
 				{
 					if(e)
 					{
@@ -375,7 +375,7 @@ module.exports = class InventoryController
 						return;
 					}
 
-					this._dbMiddleware.dlt((e, r) =>
+					this._db.dlt((e, r) =>
 					{
 						if(e)
 						{
@@ -403,31 +403,5 @@ module.exports = class InventoryController
         }
 
         return result;
-    }
-
-    _getBody()
-    {
-        return new Promise((resolve, reject) => {
-            let data = []
-
-            this._reqObj.on('data', (chunk) => {
-                data.push(chunk)
-            });
-
-            this._reqObj.on('end', () => {
-                try
-                {
-                    resolve(JSON.parse(data));
-                }
-                catch (e)
-                {
-                    reject({parser: e.message});
-                }
-            });
-
-            this._reqObj.on('error', (err) => {
-                reject(err);
-            });
-        });
     }
 }

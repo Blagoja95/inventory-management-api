@@ -25,7 +25,7 @@ router
 	})
     .get('/v1/inventories/name/:name', (req, res, next) =>
     {
-        inventoryController.gtbynm(req, res, next);
+        inventoryController.gt_by_nm(req, res, next);
     })
     .get('/v1/inventories/count', (req, res, next) =>
     {
@@ -33,26 +33,26 @@ router
     })
     .get('/v1/inventories/:id(\\d+)', (req, res, next) =>
     {
-        inventoryController.gtbyd(req, res, next);
+        inventoryController.gt_byd(req, res, next);
     })
     .get('/v1/inventories/', (req, res, next) =>
     {
-        inventoryController.gtll(req, res, next);
+        inventoryController.gt_ll(req, res, next);
     });
 
 router
 	.post('/v1/inventories/create', (req, res, next) =>
 {
-    inventoryController.crttm(req, res, next);
+    inventoryController.crt_tm(req, res, next);
 })
 	.post('/v1/inventories/create/measurements', (req, res, next) =>
 	{
-		inventoryController.crtmsrmnt(req, res, next);
+		inventoryController.crt_msrmnt(req, res, next);
 	});
 
 router.delete('/v1/inventories/delete/', (req, res, next) =>
 {
-    inventoryController.dlttm(req, res, next);
+    inventoryController.dlt_tm(req, res, next);
 });
 
 router.put('/v1/inventories/update', (req, res, next) =>
