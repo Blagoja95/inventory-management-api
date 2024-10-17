@@ -283,7 +283,6 @@ _db = null;
 		switch (body['target'])
 		{
 			case 'articles':
-				console.log('hi again')
 
 				this._chk_bdy_f_pdt(body, true);
 
@@ -315,51 +314,78 @@ _db = null;
 
 	dlt_tm(req, res, next)
     {
-        const {body} = req;
+		const {body} = req;
 
-        if(!body['productName'] || typeof body.productName !== 'string' || body.productName.length < 3)
-        {
-            if(!body['id'] || typeof body.id !== 'string' || body.id.length < 12)
-            {
-                throw new DefaultError('provide either product name value or barcode [id] value', 400);
-            }
+		if (!body['id'] || typeof body.id !== 'string')
+		{
+			throw new DefaultError('provide barcode [id] value', 400);
+		}
+		else if(body.id.length < 12)
+		{
+			throw new DefaultError('Barcode [id] must be length of 12 digits', 400);
+		}
 
-            this._db.fndrw((e, r) =>
-                {
-                    if(e)
-                    {
-                        next(new DefaultError(e.message, 400));
+		this._db.fndrw((e, r) =>
+			{
+				if (e)
+				{
+					next(new DefaultError(e.message, 400));
 
-                        return;
-                    }
+					return;
+				}
 
-                    if(r.rowCount === 0)
-                    {
-                        next(new DefaultError('item with barcode [id]: ' + body.id + ' does not exists', 409));
+				if (r.rowCount === 0)
+				{
+					next(new DefaultError('item with barcode [id]: ' + body.id + ' does not exists', 409));
 
-                        return;
-                    }
+					return;
+				}
 
-					const rn = r.rows[0].name;
+				const rn = r.rows[0].name;
 
-                    this._db.dlt((e, r) =>
+				this._db.dlt((e, r) =>
+				{
+					if (e)
 					{
-						if(e)
-						{
-							next(new DefaultError(e.message, 400));
+						next(new DefaultError(e.message, 400));
 
-							return;
-						}
+						return;
+					}
 
-						res.status(200)
-							.json({info: 'item with barcode [id]: ' + body.id + ' and [name]: ' + rn +' is now deleted' });
-					}, 'articles', 'id', body.id);
-                }
-                ,'articles', 'id', body.id);
-        }
-        else
-        {
-			this._db.fndrw((e, r) =>
+					res.status(200)
+						.json({info: 'item with barcode [id]: ' + body.id + ' and [name]: ' + rn + ' is now deleted'});
+
+				}, 'articles', 'id', body.id);
+			}
+			, 'articles', 'id', body.id);
+    }
+
+	dlt_msrmnts(req, res, next)
+	{
+		const {body} = req;
+
+		if (!body['id'] || typeof body.id !== 'string' || body.id.length < 1)
+		{
+			throw new DefaultError('measurement id is missing', 400);
+		}
+
+		this._db.fndrw((e, r) =>
+			{
+				if(e)
+				{
+					next(new DefaultError(e.message, 400));
+
+					return;
+				}
+
+				if(r.rowCount === 0)
+				{
+					next(new DefaultError('measurement with id: ' + body.id + ' does not exists', 409));
+
+					return;
+				}
+
+				this._db.dlt((e, r) =>
 				{
 					if(e)
 					{
@@ -368,29 +394,12 @@ _db = null;
 						return;
 					}
 
-					if(r.rowCount === 0)
-					{
-						next(new DefaultError('item ' + body.productName + ' does not exists', 409));
-
-						return;
-					}
-
-					this._db.dlt((e, r) =>
-					{
-						if(e)
-						{
-							next(new DefaultError(e.message, 400));
-
-							return;
-						}
-
-						res.status(200)
-							.json({info: 'Item by name ' + body.productName + ' is now deleted' });
-					}, 'articles', 'name', body.productName);
-				}
-				,'articles', 'name', body.productName);
-        }
-    }
+					res.status(200)
+						.json({info: 'measurement with id: ' + body.id +' is now deleted' });
+				}, 'measurements', 'id', body.id);
+			}
+			,'measurements', 'id', body.id);
+	}
 
     _generateBarCode() {
         let result = '';
