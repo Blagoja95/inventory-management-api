@@ -8,9 +8,8 @@ COPY package*.json ./
 RUN npm install
 
 COPY ./src ./src
-COPY ./data ./data
 
-CMD npm run dev-docker
+CMD npm run dev
 
 FROM node:18-alpine AS production
 
@@ -21,6 +20,10 @@ COPY package*.json ./
 RUN npm ci --only=production
 
 COPY ./src ./src
-COPY ./data ./data
+COPY tsconfig.json ./
+
+RUN npm install -g typescript
+
+RUN tsc
 
 CMD npm run build

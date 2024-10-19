@@ -1,4 +1,3 @@
-
 module.exports = class InventoryDatabase extends require('../BaseDatabase')
 {
 	constructor()

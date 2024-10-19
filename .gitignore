@@ -88,3 +88,6 @@ typings/
 
 # Webstorm project files
 .idea/
+
+# TS output dir
+dist

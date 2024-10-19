@@ -1,8 +1,8 @@
-const router = require("express").Router();
+const rt = require("express").Router();
 
 const inventoryController = new (require('../controller/InventoryController'))();
 
-router
+rt
 	.get('/v1/inventories/get/measurements/name/:name?', (req, res, next) =>
 	{
 		inventoryController.gt_msrmnts(req, res, next, "nm");
@@ -40,7 +40,7 @@ router
         inventoryController.gt_ll(req, res, next);
     });
 
-router
+rt
 	.post('/v1/inventories/create/items', (req, res, next) =>
 {
     inventoryController.crt_tm(req, res, next);
@@ -50,7 +50,7 @@ router
 		inventoryController.crt_msrmnt(req, res, next);
 	});
 
-router
+rt
 	.delete('/v1/inventories/delete/measurements', (req, res, next) =>
 	{
 		inventoryController.dlt_msrmnts(req, res, next);
@@ -60,9 +60,9 @@ router
 		inventoryController.dlt_tm(req, res, next);
 	});
 
-router.put('/v1/inventories/update', (req, res, next) =>
+rt.put('/v1/inventories/update', (req, res, next) =>
 {
     inventoryController.pdt_tm(req, res, next);
 });
 
-module.exports = router;
+module.exports = rt;

@@ -1,10 +1,9 @@
 const InventoryDatabase = require('../database/inventory/InventoryDatabase');
-const DefaultError = require("../errors/DefaultError");
 
 module.exports = class InventoryController
 {
-    _BARCODE_LENGTH = 12;
-_db = null;
+    private _BARCODE_LENGTH:number = 12;
+	private _db:typeof InventoryDatabase;
 
     constructor()
     {

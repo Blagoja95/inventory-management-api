@@ -1,8 +1,9 @@
 const pg = require('pg');
-const DefaultError = require('../errors/DefaultError');
 
 module.exports = class BaseDatabase {
-    constructor(table)
+	public pool: any;
+
+    constructor()
     {
         this.pool = new pg.Pool({
             host: process.env.POSTGRES_SERVER_NAME,

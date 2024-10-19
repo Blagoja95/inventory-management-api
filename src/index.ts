@@ -5,6 +5,7 @@ const PORT = process.env.NODE_PORT || 5000;
 
 const app = express();
 const errorHandler = require('./errors/ErrorHandlingMiddleware');
+const DefaultError = require('./errors/DefaultError');
 
 const inventoryRouter = require('./routes/InventoryRoutes');
 const documentationRouter = require('./routes/DocumentationRoute');
