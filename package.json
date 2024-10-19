@@ -5,7 +5,7 @@
   "main": "src/index.ts",
   "scripts": {
     "dev": "nodemon src/index.ts",
-    "dev-docker": "npm install nodemon -g && nodemon --legacy-watch --polling-interval 1500 src/index.ts",
+    "dev-docker": "nodemon --legacy-watch --polling-interval 1000 src/index.ts",
     "build": "node dist/index.js"
   },
   "author": {

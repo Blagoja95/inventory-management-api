@@ -5,11 +5,12 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install
+RUN npm install && npm install -g ts-node nodemon typescript
 
 COPY ./src ./src
+COPY tsconfig.json ./
 
-CMD npm run dev
+CMD npm run dev-docker
 
 FROM node:18-alpine AS production
 
