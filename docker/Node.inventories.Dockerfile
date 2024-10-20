@@ -5,7 +5,7 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm install && npm install -g ts-node nodemon typescript
+RUN npm install && npm install -g ts-node nodemon typescript cache
 
 COPY ./src ./src
 COPY tsconfig.json ./
@@ -23,7 +23,7 @@ RUN npm ci --only=production
 COPY ./src ./src
 COPY tsconfig.json ./
 
-RUN npm install -g typescript
+RUN npm install -g typescript cache
 
 RUN tsc
 

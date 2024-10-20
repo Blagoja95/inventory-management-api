@@ -1,6 +1,10 @@
-const rt = require("express").Router();
+import InventoryController from "../controller/InventoryController";
+import { Router, Request } from 'express';
+import {InventoryReqBody} from "../types/InventoryTypes";
 
-const inventoryController = new (require('../controller/InventoryController'))();
+const rt = Router();
+
+const inventoryController = new InventoryController();
 
 rt
 	.get('/v1/inventories/get/measurements/name/:name?', (req, res, next) =>
@@ -23,7 +27,7 @@ rt
 	{
 		inventoryController.gt_ll_msrmnts(req, res, next);
 	})
-    .get('/v1/inventories/get/items/name*/:name?', (req, res, next) =>
+    .get('/v1/inventories/get/items/name/:name?', (req, res, next) =>
     {
         inventoryController.gt_by_nm(req, res, next);
     })
@@ -41,7 +45,7 @@ rt
     });
 
 rt
-	.post('/v1/inventories/create/items', (req, res, next) =>
+	.post('/v1/inventories/create/items', (req: Request<{}, {}, InventoryReqBody>, res, next) =>
 {
     inventoryController.crt_tm(req, res, next);
 })
@@ -65,4 +69,4 @@ rt.put('/v1/inventories/update', (req, res, next) =>
     inventoryController.pdt_tm(req, res, next);
 });
 
-module.exports = rt;
+export default rt;

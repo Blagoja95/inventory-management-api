@@ -1,64 +1,49 @@
-const pg = require('pg');
+import pg, {Pool} from 'pg';
+import {CallbackFunction} from '../types/InventoryTypes';
+export default class BaseDatabase {
+	public pool: Pool;
 
-module.exports = class BaseDatabase {
-	public pool: any;
-
-    constructor()
+	constructor()
     {
+		// @ts-ignore
         this.pool = new pg.Pool({
             host: process.env.POSTGRES_SERVER_NAME,
             user: process.env.POSTGRES_USERNAME,
             password: process.env.POSTGRES_PASSWORD,
             database: process.env.POSTGRES_DB_NAME,
+
+			// @ts-ignore
             port: process.env.POSTGRES_PORT
         });
     }
 
-    cnt(cb, tb)
+    cnt(cb: CallbackFunction, tb: string): void
     {
-        this._ckcb(cb);
-
         this.pool.query('SELECT COUNT(*) FROM ' + tb, (e, r) => cb(e, r));
 
         // TODO: use triggers with separate table for counting rows
     }
 
-	gt_ll(cb, tb)
+	gt_ll(cb: CallbackFunction, tb: string): void
 	{
-		this._ckcb(cb);
-
 		this.pool.query('SELECT * FROM ' + tb
 		, (e, r) => cb(e, r));
 	}
 
-    _ckcb(cb)
+    fndrw(cb: CallbackFunction, tb: string, ky: string, vl: string): void
     {
-        if (!cb || typeof cb !== 'function')
-        {
-            throw new DefaultError('cb must be a function', 500);
-        }
-    }
-
-    fndrw(cb, tb, ky, vl)
-    {
-        this._ckcb(cb);
-
         this.pool.query('SELECT * FROM ' + tb + ' WHERE ' + ky + ' = \'' + vl + '\';'
         ,(e, r) => cb(e, r));
     }
 
-	dlt(cb, tb, ky, vl)
+	dlt(cb: CallbackFunction, tb: string, ky: string, vl: string): void
 	{
-		this._ckcb(cb);
-
 		this.pool.query('DELETE FROM ' + tb + ' WHERE ' + ky + ' = \'' + vl +'\';'
 		, (e, r) => cb(e, r));
 	}
 
-	pdt_tm(cb, tb, ky, vl, a, b)
+	pdt_tm(cb: CallbackFunction, tb: string, ky: string, vl: string, a: string, b: string): void
 	{
-		this._ckcb(cb);
-
 		this.pool.query('UPDATE ' + tb +
 			' SET ' + a + ' = \'' + b + '\'' +
 			' WHERE ' + ky + ' = \'' + vl +'\' RETURNING *;'

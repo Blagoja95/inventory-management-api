@@ -1,8 +1,9 @@
-const router = require("express").Router();
+import { Router } from 'express';
+const rt2 = Router();
 
-router.get('/v1/documentation', (req, res, next) =>
+rt2.get('/v1/documentation', (req, res, next) =>
 {
-	res.status(301).redirect(process.env.NODE_DOC_URL);
+	res.status(301).redirect(process.env.NODE_DOC_URL || '');
 });
 
-module.exports = router;
+export default rt2;

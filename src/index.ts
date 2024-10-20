@@ -1,14 +1,13 @@
-const express = require('express');
-require('dotenv').config();
+import 'dotenv/config'
+import express from 'express';
+
+import errorHandler from './errors/ErrorHandlingMiddleware';
+import inventoryRouter from './routes/InventoryRoutes';
+import documentationRouter from './routes/DocumentationRoute';
 
 const PORT = process.env.NODE_PORT || 5000;
 
 const app = express();
-const errorHandler = require('./errors/ErrorHandlingMiddleware');
-const DefaultError = require('./errors/DefaultError');
-
-const inventoryRouter = require('./routes/InventoryRoutes');
-const documentationRouter = require('./routes/DocumentationRoute');
 
 app.use(express.json());
 

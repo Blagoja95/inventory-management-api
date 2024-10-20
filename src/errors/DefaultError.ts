@@ -1,4 +1,4 @@
-module.exports = class DefaultError extends Error
+export default class DefaultError extends Error
 {
 	public statusCode: number;
 
