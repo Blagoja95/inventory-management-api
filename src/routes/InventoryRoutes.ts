@@ -1,20 +1,26 @@
-import { Router, Request } from 'express';
+import { Router} from 'express';
 import {
+	dlt_rspon_cntrl,
 	gt_byd_cntrl,
 	gt_cnt_cntrl,
 	gt_ll_cntrl,
-	prp_msrmnts_cntrl
+	prp_msrmnts_cntrl, prpr_tm_bdy
 } from '../controller/InventoryController';
-import {InventoryReqBody} from '../types/InventoryTypes';
 import {validateData} from '../validators/BaseValidator';
-import {barcode, measurement_param_id, measurement_param_name} from '../validators/schemas/InventorySchemas';
-import {gt_byd_db, gt_ll_db} from '../database/inventory/InventoryDatabase';
-import {cnt_db, db_wrppr, fndrw} from '../database/BaseDatabase';
+
+import {
+	barcode,
+	measurement_param_id,
+	measurement_param_name, msrmnt_rq_bdy,
+	nvntry_rq_bdy
+} from '../validators/schemas/InventorySchemas';
+
+import {crt_msurmnt, crttm, gt_byd_db, gt_ll_db} from '../database/inventory/InventoryDatabase';
+import {cnt_db, db_wrppr, dlt_gnrc, fndrw} from '../database/BaseDatabase';
 
 const rt = Router();
 
-rt
-	.get('/v1/inventories/get/measurements/name/:name?',
+rt.get('/v1/inventories/get/measurements/name/:name?',
 		validateData(measurement_param_name, true),
 		prp_msrmnts_cntrl('nm'),
 		fndrw,
@@ -46,22 +52,30 @@ rt
 
     .get('/v1/inventories/get/items', gt_ll_db, db_wrppr,  gt_ll_cntrl); // TODO pagination
 
-rt
-	.post('/v1/inventories/create/items',)
-	.post('/v1/inventories/create/measurements', (req, res, next) =>
-	{
-		// inventoryController.crt_msrmnt(req, res, next);
-	});
+rt.post('/v1/inventories/create/items',
+	validateData(nvntry_rq_bdy),
+	prpr_tm_bdy,
+	crttm,
+	db_wrppr,
+	gt_ll_cntrl)
 
-rt
-	.delete('/v1/inventories/delete/measurements', (req, res, next) =>
-	{
-		// inventoryController.dlt_msrmnts(req, res, next);
-	})
-	.delete('/v1/inventories/delete/items', (req, res, next) =>
-	{
-		// inventoryController.dlt_tm(req, res, next);
-	});
+	.post('/v1/inventories/create/measurements',
+		validateData(msrmnt_rq_bdy),
+		crt_msurmnt,
+		db_wrppr,
+		gt_ll_cntrl);
+
+rt.delete('/v1/inventories/delete/measurements',
+		validateData(measurement_param_id),
+		dlt_gnrc('measurements'),
+		db_wrppr,
+		dlt_rspon_cntrl)
+
+	.delete('/v1/inventories/delete/items',
+		validateData(barcode),
+		dlt_gnrc('articles'),
+		db_wrppr,
+		dlt_rspon_cntrl);
 
 rt.put('/v1/inventories/update'); // TODO update
 

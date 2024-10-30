@@ -1,11 +1,21 @@
 import DefaultError from '../errors/DefaultError';
-import {QueryResult} from "pg";
 import {Request, Response, NextFunction} from "express";
 import {Count_Response_Body, Update} from "../types/DatabaseTypes";
 
 export const gt_ll_cntrl = (req: Request, res: Response, next: NextFunction) =>
 {
 	res.status(200).json(res.locals.result.rows);
+}
+
+export const dlt_rspon_cntrl = (req: Request, res: Response, next: NextFunction) =>
+{
+	if(res.locals.result.rowCount !== 0)
+	{
+		res.status(200).json({message: `record with id ${req.body.id} successfully deleted`});
+	} else
+	{
+		res.status(400).json({message: `record with id ${req.body.id} not found`});
+	}
 }
 
 export const gt_byd_cntrl = (req: Request, res: Response, next: NextFunction) =>
@@ -71,6 +81,36 @@ export const prp_msrmnts_cntrl = (md: 'id' | 'nm' | 'symbol') =>
 		next();
 	}
 }
+
+export const prpr_tm_bdy = (req: Request, res: Response, next: NextFunction) =>
+{
+    const {body} = req;
+
+	res.locals.bdy = [
+		_generateBarCode(),
+		body.productName,
+		body?.quantity ?? 0,
+		body.measurement_id,
+		body?.price ?? 0,
+		body?.description ?? ''
+	];
+
+	next();
+}
+
+const _BARCODE_LENGTH: number = 12;
+
+const _generateBarCode = (): string =>
+{
+        let result: string = '';
+
+        for (let i: number = 0; i < _BARCODE_LENGTH; i++)
+        {
+            result += Math.floor(Math.random() * 10);
+        }
+
+        return result;
+    }
 
 // export default class InventoryController
 // {
@@ -224,14 +264,6 @@ export const prp_msrmnts_cntrl = (md: 'id' | 'nm' | 'symbol') =>
 //     //             return;
 //     //         }
 // 	//
-//     //         const bdy = {
-//     //             id:  this._generateBarCode(), //TODO ID UPGRADE
-//     //             name: body.productName,
-//     //             quantity: body?.quantity ?? 0,
-//     //             price: body?.price ?? 0,
-//     //             measurement: r.rows[0].id,
-//     //             description: body?.description ?? '',
-//     //         };
 // 	//
 //     //         this._db.crttm((e: Error, r: QueryResult) =>
 //     //         {
@@ -424,16 +456,4 @@ export const prp_msrmnts_cntrl = (md: 'id' | 'nm' | 'symbol') =>
 // 	// 		,'measurements', 'id', body.id);
 // 	}
 //
-//     _generateBarCode(): string {
-//         let result: string = '';
-//
-//         const characters: string = '0123456789';
-//
-//         for (let i: number = 0; i < this._BARCODE_LENGTH; i++)
-//         {
-//             result += characters.charAt(Math.floor(Math.random() * characters.length));
-//         }
-//
-//         return result;
-//     }
 // }

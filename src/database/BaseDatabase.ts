@@ -1,8 +1,7 @@
 import pg, {Pool} from 'pg';
-import {CallbackFunction} from '../types/InventoryTypes';
 import {NextFunction, Request, Response} from "express";
-import DefaultError from "../errors/DefaultError";
 import {Statement} from "../types/DatabaseTypes";
+import {DbError} from "../errors/DbError";
 
 // @ts-ignore
 export const pool = new pg.Pool({
@@ -25,7 +24,6 @@ export const db_wrppr = async (req: Request, res: Response, next: NextFunction)=
 		}
 		else
 		{
-			console.log(res.locals.statement)
 			res.locals.result = await pool.query(res.locals.statement.q, res.locals.statement.prmtrs);
 		}
 
@@ -33,7 +31,7 @@ export const db_wrppr = async (req: Request, res: Response, next: NextFunction)=
 
 	} catch (e: any)
 	{
-		next(new DefaultError(e.message, 500));
+		next(new DbError(e, 400));
 	}
 }
 
@@ -55,46 +53,22 @@ export const cnt_db = (tb: string) =>
 export const fndrw = (req: Request, res: Response, next: NextFunction) =>
 {
 	res.locals.statement = {
-		q: 'SELECT * FROM ' + res.locals.tb + ' WHERE ' + res.locals.prms.ky + ' = \'' + res.locals.prms.vl + '\';'
-	}
+		q: 'SELECT * FROM $1 WHERE $2 = $3;',
+		prmtrs: [res.locals.tb, res.locals.prms.ky, res.locals.prms.vl]
+	} as Statement
 
 	next()
 }
 
-export default class BaseDatabase {
-	public pool: Pool;
-
-	constructor()
-    {
-		// @ts-ignore
-        this.pool = new pg.Pool({
-            host: process.env.POSTGRES_SERVER_NAME,
-            user: process.env.POSTGRES_USERNAME,
-            password: process.env.POSTGRES_PASSWORD,
-            database: process.env.POSTGRES_DB_NAME,
-
-			// @ts-ignore
-            port: process.env.POSTGRES_PORT
-        });
-    }
-
-	gt_ll(cb: CallbackFunction, tb: string): void
+export const dlt_gnrc = (tb: string) =>
+{
+	return (req: Request, res: Response, next: NextFunction) =>
 	{
-		this.pool.query('SELECT * FROM ' + tb
-		, (e, r) => cb(e, r));
-	}
+		res.locals.statement = {
+			q: 'DELETE FROM ' + tb + ' WHERE id = $1;',
+			prmtrs: [req.body.id]
+		} as Statement
 
-	dlt(cb: CallbackFunction, tb: string, ky: string, vl: string): void
-	{
-		this.pool.query('DELETE FROM ' + tb + ' WHERE ' + ky + ' = \'' + vl +'\';'
-		, (e, r) => cb(e, r));
-	}
-
-	pdt_tm(cb: CallbackFunction, tb: string, ky: string, vl: string, a: string, b: string): void
-	{
-		this.pool.query('UPDATE ' + tb +
-			' SET ' + a + ' = \'' + b + '\'' +
-			' WHERE ' + ky + ' = \'' + vl +'\' RETURNING *;'
-			, (e, r) => cb(e, r));
+		next();
 	}
 }

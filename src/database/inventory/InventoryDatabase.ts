@@ -1,12 +1,11 @@
 import {NextFunction, Request, Response} from 'express';
-import {CallbackFunction, InventoryItem} from '../../types/InventoryTypes';
 import {Statement} from '../../types/DatabaseTypes';
 
 export const gt_ll_db  =  (req: Request, res: Response, next: NextFunction) =>
 {
 	res.locals.statement = {
 		q : 'SELECT a.id, a.name, a.price, a.quantity, json_build_object(\'name\', m.name, \'symbol\', m.symbol) AS measurement, a.description ' +
-			'FROM articles AS a FULL JOIN measurements AS m ON a.measurement_id = m.id;'
+			'FROM articles AS a LEFT JOIN measurements AS m ON a.measurement_id = m.id;'
 	} as Statement;
 
 	next();
@@ -16,13 +15,36 @@ export const gt_byd_db = (req: Request, res: Response, next: NextFunction) =>
 {
 	res.locals.statement = {
 		q : 'SELECT a.id, a.name, a.price, a.quantity, json_build_object(\'name\', m.name, \'symbol\', m.symbol) AS measurement, a.description FROM articles AS a ' +
-			'FULL JOIN measurements AS m ON a.measurement_id = m.id WHERE a.id = $1;',
+			'LEFT JOIN measurements AS m ON a.measurement_id = m.id WHERE a.id = $1;',
 		prmtrs: [req.params.id]
 	} as Statement;
 
 	next();
 }
 
+export const crttm = (req: Request, res: Response, next: NextFunction) =>
+{
+	res.locals.statement = {
+		q: 'INSERT INTO articles (id, name, quantity, measurement_id, price, description) ' +
+			'VALUES ($1, $2, $3, $4, $5, $6)' +
+			'RETURNING *;',
+		prmtrs: res.locals.bdy
+	} as Statement;
+
+	next();
+}
+
+export const crt_msurmnt = (req: Request, res: Response, next: NextFunction) =>
+{
+	res.locals.statement = {
+		q: 'INSERT INTO measurements (name, symbol) ' +
+			'VALUES ($1, $2)' +
+			'RETURNING *;',
+		prmtrs: [req.body.measurementName, req.body.symbol]
+	}
+
+	next();
+}
 
 // export default class InventoryDatabase extends BaseDatabase
 // {
