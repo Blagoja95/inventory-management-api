@@ -1,72 +1,68 @@
-import InventoryController from "../controller/InventoryController";
 import { Router, Request } from 'express';
-import {InventoryReqBody} from "../types/InventoryTypes";
+import {
+	gt_byd_cntrl,
+	gt_cnt_cntrl,
+	gt_ll_cntrl,
+	prp_msrmnts_cntrl
+} from '../controller/InventoryController';
+import {InventoryReqBody} from '../types/InventoryTypes';
+import {validateData} from '../validators/BaseValidator';
+import {barcode, measurement_param_id, measurement_param_name} from '../validators/schemas/InventorySchemas';
+import {gt_byd_db, gt_ll_db} from '../database/inventory/InventoryDatabase';
+import {cnt_db, db_wrppr, fndrw} from '../database/BaseDatabase';
 
 const rt = Router();
 
-const inventoryController = new InventoryController();
+rt
+	.get('/v1/inventories/get/measurements/name/:name?',
+		validateData(measurement_param_name, true),
+		prp_msrmnts_cntrl('nm'),
+		fndrw,
+		db_wrppr,
+		gt_ll_cntrl)
+
+	.get('/v1/inventories/get/measurements/symbol/:name?',
+		validateData(measurement_param_name, true),
+		prp_msrmnts_cntrl('symbol'),
+		fndrw,
+		db_wrppr,
+		gt_ll_cntrl)
+
+	.get('/v1/inventories/get/measurements/count', cnt_db('measurements'), db_wrppr, gt_cnt_cntrl)
+
+	.get('/v1/inventories/get/measurements/:id',
+		validateData(measurement_param_id, true),
+		prp_msrmnts_cntrl('id'),
+		fndrw,
+		db_wrppr,
+		gt_ll_cntrl)
+
+	.get('/v1/inventories/get/measurements', gt_ll_db, db_wrppr,  gt_ll_cntrl) // TODO pagination
+    .get('/v1/inventories/get/items/name/:name?') // TODO pagination
+
+    .get('/v1/inventories/get/items/count', cnt_db('articles'), db_wrppr, gt_cnt_cntrl)
+
+    .get('/v1/inventories/get/items/:id', validateData(barcode, true), gt_byd_db, db_wrppr, gt_byd_cntrl)
+
+    .get('/v1/inventories/get/items', gt_ll_db, db_wrppr,  gt_ll_cntrl); // TODO pagination
 
 rt
-	.get('/v1/inventories/get/measurements/name/:name?', (req, res, next) =>
-	{
-		inventoryController.gt_msrmnts(req, res, next, "nm");
-	})
-	.get('/v1/inventories/get/measurements/symbol/:name?', (req, res, next) =>
-	{
-		inventoryController.gt_msrmnts(req, res, next, "symbol");
-	})
-	.get('/v1/inventories/get/measurements/count', (req, res, next) =>
-	{
-		inventoryController.gt_msrmnts_cnt(req, res, next);
-	})
-	.get('/v1/inventories/get/measurements/:id(\\d+)', (req, res, next) =>
-	{
-		inventoryController.gt_msrmnts(req, res, next);
-	})
-	.get('/v1/inventories/get/measurements', (req, res, next) =>
-	{
-		inventoryController.gt_ll_msrmnts(req, res, next);
-	})
-    .get('/v1/inventories/get/items/name/:name?', (req, res, next) =>
-    {
-        inventoryController.gt_by_nm(req, res, next);
-    })
-    .get('/v1/inventories/get/items/count', (req, res, next) =>
-    {
-        inventoryController.gt_rtcls_cnt(req, res, next);
-    })
-    .get('/v1/inventories/get/items/:id(\\d+)', (req, res, next) =>
-    {
-        inventoryController.gt_byd(req, res, next);
-    })
-    .get('/v1/inventories/get/items', (req, res, next) =>
-    {
-        inventoryController.gt_ll(req, res, next);
-    });
-
-rt
-	.post('/v1/inventories/create/items', (req: Request<{}, {}, InventoryReqBody>, res, next) =>
-{
-    inventoryController.crt_tm(req, res, next);
-})
+	.post('/v1/inventories/create/items',)
 	.post('/v1/inventories/create/measurements', (req, res, next) =>
 	{
-		inventoryController.crt_msrmnt(req, res, next);
+		// inventoryController.crt_msrmnt(req, res, next);
 	});
 
 rt
 	.delete('/v1/inventories/delete/measurements', (req, res, next) =>
 	{
-		inventoryController.dlt_msrmnts(req, res, next);
+		// inventoryController.dlt_msrmnts(req, res, next);
 	})
 	.delete('/v1/inventories/delete/items', (req, res, next) =>
 	{
-		inventoryController.dlt_tm(req, res, next);
+		// inventoryController.dlt_tm(req, res, next);
 	});
 
-rt.put('/v1/inventories/update', (req, res, next) =>
-{
-    inventoryController.pdt_tm(req, res, next);
-});
+rt.put('/v1/inventories/update'); // TODO update
 
 export default rt;

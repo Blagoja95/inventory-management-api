@@ -11,14 +11,6 @@ export interface InventoryItem {
 	description: string
 }
 
-export type InventoryReqBody = {
-	productName: string
-	measurement_id: number
-	quantity?:number
-	price?: number
-	description?: string
-}
-
 export type MeasurementReqBody = {
 	body: {
 		measurementName: string
