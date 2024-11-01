@@ -1,7 +1,9 @@
-import pg, {Pool} from 'pg';
+import pg, {Pool, types} from 'pg';
 import {NextFunction, Request, Response} from "express";
 import {Statement} from "../types/DatabaseTypes";
 import {DbError} from "../errors/DbError";
+
+types.setTypeParser(1700, (vl) => parseFloat(vl));
 
 // @ts-ignore
 export const pool = new pg.Pool({

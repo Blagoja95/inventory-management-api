@@ -4,9 +4,11 @@ import {
 	gt_byd_cntrl,
 	gt_cnt_cntrl,
 	gt_ll_cntrl,
-	prp_msrmnts_cntrl, prpr_tm_bdy
+	prp_msrmnts_cntrl,
+	prpr_tm_bdy,
+	hndl_pgntn_rspns_cntrl
 } from '../controller/InventoryController';
-import {validateData} from '../validators/BaseValidator';
+import {validateData, vldt_pgntn_tms} from '../validators/BaseValidator';
 
 import {
 	barcode,
@@ -50,7 +52,7 @@ rt.get('/v1/inventories/get/measurements/name/:name?',
 
     .get('/v1/inventories/get/items/:id', validateData(barcode, true), gt_byd_db, db_wrppr, gt_byd_cntrl)
 
-    .get('/v1/inventories/get/items', gt_ll_db, db_wrppr,  gt_ll_cntrl); // TODO pagination
+    .get('/v1/inventories/get/items', vldt_pgntn_tms, gt_ll_db, db_wrppr, hndl_pgntn_rspns_cntrl);
 
 rt.post('/v1/inventories/create/items',
 	validateData(nvntry_rq_bdy),

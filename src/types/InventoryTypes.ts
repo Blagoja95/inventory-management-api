@@ -4,3 +4,10 @@ export type MeasurementReqBody = {
 		symbol: string
 	}
 }
+
+export interface pgntn_rspns_bdy {
+	records:  Array<any>,
+	cursor: string,
+	size: number,
+	records_count: number
+}

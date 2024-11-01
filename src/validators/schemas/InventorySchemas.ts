@@ -17,10 +17,17 @@ export const nvntry_rq_bdy = z.object({
 	measurement_id: z.number({required_error: 'missing measurement id parameter', invalid_type_error: 'measurement id value must be number'}),
 	quantity: z.number().optional(),
 	price: z.number().nonnegative('price must be positive number value. example: 5.11').optional(),
-	description: z.string().optional()
+	description: z.string().optional(),
 });
 
 export const msrmnt_rq_bdy = z.object({
 	measurementName: z.string({required_error: 'missing measurement name parameter'}).min(1, 'measurement name value must contain at least 1 character'),
 	symbol: z.string({required_error: 'missing symbol name parameter'}).min(1, 'symbol name value must contain at least 1 character')
-})
+});
+
+export const pgntn_tms_qry  = z.object({
+	cursor: z.string().default('0'),
+	limit: z.enum(['5', '10', '15', '25', '50']).default('10'),
+	order_by: z.enum(['id', 'name', 'price']).default('id'),
+	order: z.enum(['ASC', 'DESC']).default('ASC')
+});
