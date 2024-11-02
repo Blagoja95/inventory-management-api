@@ -4,15 +4,29 @@ import {Statement} from '../../types/DatabaseTypes';
 export const gt_ll_db  =  (req: Request, res: Response, next: NextFunction) =>
 {
 	res.locals.statement = {
-		q :
-			// 'SELECT * FROM (' +
+		q : 'SELECT * FROM (' +
 			'SELECT a.id, a.name, a.price, json_build_object(\'name\', m.name, \'symbol\', m.symbol) AS measurement ' +
 			'FROM articles AS a LEFT JOIN measurements AS m ON a.measurement_id = m.id ' +
 			'WHERE a.id > \'' + res.locals.data.cursor + '\' ' +
-			'LIMIT ' + res.locals.data.limit + '; ' +
-			// 'AS sbqry ' +
-			// 'ORDER BY sbqry.'+ res.locals.data.order_by + ' ' + res.locals.data.order + '; ' +
-			'SELECT COUNT(*) FROM articles;' // TODO TRIGGER for count
+			'LIMIT ' + res.locals.data.limit + ') ' +
+			'AS sbqry ' +
+			'ORDER BY sbqry.'+ res.locals.data.order_by + ' ' + res.locals.data.order + '; ' +
+			'SELECT row_count FROM rw_count WHERE table_name = \'articles\';'
+	} as Statement;
+
+	next();
+}
+
+export const gt_ll_msrmnts_db  =  (req: Request, res: Response, next: NextFunction) =>
+{
+	res.locals.statement = {
+		q : 'SELECT * FROM (' +
+			'SELECT id, name, symbol FROM measurements ' +
+			'WHERE id > \'' + res.locals.data.cursor + '\' ' +
+			'LIMIT ' + res.locals.data.limit + ') ' +
+			'AS sbqry ' +
+			'ORDER BY sbqry.'+ res.locals.data.order_by + ' ' + res.locals.data.order + '; ' +
+			'SELECT row_count FROM rw_count WHERE table_name = \'measurements\';'
 	} as Statement;
 
 	next();

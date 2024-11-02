@@ -1,7 +1,6 @@
 import {Request, Response, NextFunction} from 'express';
 import {ZodError, AnyZodObject, ZodSchema} from 'zod';
 import DefaultError from "../errors/DefaultError";
-import {pgntn_tms_qry} from "./schemas/InventorySchemas";
 
 export const validateData = (schema: ZodSchema<any>, params:boolean = false) =>
 {
@@ -27,16 +26,19 @@ export const validateData = (schema: ZodSchema<any>, params:boolean = false) =>
 	}
 }
 
-export const vldt_pgntn_tms = (req: Request, res: Response, next: NextFunction) =>
+export const vldt_pgntn_tms = (shema: ZodSchema<any>) =>
 {
-	const q = pgntn_tms_qry.safeParse(req.query);
-
-	if(!q.success)
+	return (req: Request, res: Response, next: NextFunction) =>
 	{
-		throw new DefaultError(q.error.errors[0].message ?? 'Bad request', 400);
+		const q = shema.safeParse(req.query);
+
+		if (!q.success)
+		{
+			throw new DefaultError(q.error.errors[0].message ?? 'Bad request', 400);
+		}
+
+		res.locals.data = q.data;
+
+		next();
 	}
-
-	res.locals.data = q.data;
-
-	next();
 }

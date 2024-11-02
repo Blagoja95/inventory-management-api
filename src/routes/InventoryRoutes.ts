@@ -13,11 +13,13 @@ import {validateData, vldt_pgntn_tms} from '../validators/BaseValidator';
 import {
 	barcode,
 	measurement_param_id,
-	measurement_param_name, msrmnt_rq_bdy,
-	nvntry_rq_bdy
+	measurement_param_name,
+	msrmnt_rq_bdy,
+	nvntry_rq_bdy, pgntn_msrmnts_qry,
+	pgntn_tms_qry
 } from '../validators/schemas/InventorySchemas';
 
-import {crt_msurmnt, crttm, gt_byd_db, gt_ll_db} from '../database/inventory/InventoryDatabase';
+import {crt_msurmnt, crttm, gt_byd_db, gt_ll_db, gt_ll_msrmnts_db} from '../database/inventory/InventoryDatabase';
 import {cnt_db, db_wrppr, dlt_gnrc, fndrw} from '../database/BaseDatabase';
 
 const rt = Router();
@@ -45,14 +47,15 @@ rt.get('/v1/inventories/get/measurements/name/:name?',
 		db_wrppr,
 		gt_ll_cntrl)
 
-	.get('/v1/inventories/get/measurements', gt_ll_db, db_wrppr,  gt_ll_cntrl) // TODO pagination
-    .get('/v1/inventories/get/items/name/:name?') // TODO pagination
+	.get('/v1/inventories/get/measurements', vldt_pgntn_tms(pgntn_msrmnts_qry) ,gt_ll_msrmnts_db, db_wrppr,  hndl_pgntn_rspns_cntrl) // TODO pagination
+
+	.get('/v1/inventories/get/items/name/:name?') // TODO pagination
 
     .get('/v1/inventories/get/items/count', cnt_db('articles'), db_wrppr, gt_cnt_cntrl)
 
     .get('/v1/inventories/get/items/:id', validateData(barcode, true), gt_byd_db, db_wrppr, gt_byd_cntrl)
 
-    .get('/v1/inventories/get/items', vldt_pgntn_tms, gt_ll_db, db_wrppr, hndl_pgntn_rspns_cntrl);
+    .get('/v1/inventories/get/items', vldt_pgntn_tms(pgntn_tms_qry), gt_ll_db, db_wrppr, hndl_pgntn_rspns_cntrl);
 
 rt.post('/v1/inventories/create/items',
 	validateData(nvntry_rq_bdy),

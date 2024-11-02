@@ -44,11 +44,10 @@ export const cnt_db = (tb: string) =>
 
 		res.locals.tb = tb;
 		res.locals.statement = {
-			q : 'SELECT COUNT(*) FROM ' + tb
+			q : 'SELECT row_count as count FROM rw_count WHERE table_name = \''  + tb + '\';'
 		} as Statement;
 
 		next();
-		// TODO: use triggers with separate table for counting rows
 	}
 }
 

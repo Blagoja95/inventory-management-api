@@ -5,20 +5,31 @@ import {pgntn_rspns_bdy} from "../types/InventoryTypes";
 
 export const gt_ll_cntrl = (req: Request, res: Response, next: NextFunction) =>
 {
-
 	res.status(200).json(res.locals.result.rows);
 }
 
 export const hndl_pgntn_rspns_cntrl = (req: Request, res: Response, next: NextFunction) =>
 {
-	console.log(res.locals.result[0])
-	res.status(200).json({
-		cursor: res.locals.result[0].rows[res.locals.result[0].rows.length - 1].id,
-		size: res.locals.result[0].rowCount,
-		records_count: Number(res.locals.result[1].rows[0].count),
+	if(res.locals.result[0].rowCount !== 0)
+	{
+		res.status(200).json({
+			cursor: res.locals.result[0].rows[res.locals.result[0].rows.length - 1].id,
+			size: res.locals.result[0].rowCount,
+			records_count: Number(res.locals.result[1].rows[0].row_count),
 
-		records: res.locals.result[0].rows
-	} as pgntn_rspns_bdy);
+			records: res.locals.result[0].rows
+		} as pgntn_rspns_bdy);
+	}
+	else
+	{
+		res.status(200).json({
+			cursor: '0',
+			size:  0,
+			records_count: 0,
+
+			records: []
+		} as pgntn_rspns_bdy);
+	}
 }
 
 export const dlt_rspon_cntrl = (req: Request, res: Response, next: NextFunction) =>
@@ -116,12 +127,12 @@ const _BARCODE_LENGTH: number = 12;
 
 const _generateBarCode = (): string =>
 {
-        let result: string = '';
+	let result: string = '';
 
-        for (let i: number = 0; i < _BARCODE_LENGTH; i++)
-        {
-            result += Math.floor(Math.random() * 10);
-        }
+	for (let i: number = 0; i < _BARCODE_LENGTH; i++)
+	{
+		result += Math.floor(Math.random() * 10);
+	}
 
-        return result;
+	return result;
 }

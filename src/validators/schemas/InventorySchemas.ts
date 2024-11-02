@@ -31,3 +31,7 @@ export const pgntn_tms_qry  = z.object({
 	order_by: z.enum(['id', 'name', 'price']).default('id'),
 	order: z.enum(['ASC', 'DESC']).default('ASC')
 });
+
+export const pgntn_msrmnts_qry  = pgntn_tms_qry.extend({
+	order_by: z.enum(['id', 'name', 'symbol']).default('id')
+});
