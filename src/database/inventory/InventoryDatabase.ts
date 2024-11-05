@@ -43,6 +43,21 @@ export const gt_byd_db = (req: Request, res: Response, next: NextFunction) =>
 	next();
 }
 
+export const gt_byn_tms_lk = (req: Request, res: Response, next: NextFunction) =>
+{
+	res.locals.statement = {
+		q : 'SELECT * FROM (' +
+			'SELECT a.id, a.name, a.price, json_build_object(\'name\', m.name, \'symbol\', m.symbol) AS measurement ' +
+			'FROM articles AS a LEFT JOIN measurements AS m ON a.measurement_id = m.id ' +
+			'WHERE a.id > \'' + res.locals.data.cursor + '\' ' +
+			' AND a.name LIKE %' + res.locals.data.name + '% ' +
+			'LIMIT ' + res.locals.data.limit + ') ' +
+			'AS sbqry ' +
+			'ORDER BY sbqry.'+ res.locals.data.order_by + ' ' + res.locals.data.order + '; ' +
+			'SELECT row_count FROM rw_count WHERE table_name = \'articles\';'
+	}
+}
+
 export const crttm = (req: Request, res: Response, next: NextFunction) =>
 {
 	res.locals.statement = {

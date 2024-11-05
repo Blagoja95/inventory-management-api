@@ -67,7 +67,7 @@ export const dlt_gnrc = (tb: string) =>
 	{
 		res.locals.statement = {
 			q: 'DELETE FROM ' + tb + ' WHERE id = $1;',
-			prmtrs: [req.body.id]
+			prmtrs: [req.params.id]
 		} as Statement
 
 		next();

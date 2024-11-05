@@ -1,6 +1,6 @@
 import DefaultError from '../errors/DefaultError';
 import {Request, Response, NextFunction} from "express";
-import {Count_Response_Body, Update} from "../types/DatabaseTypes";
+import {Count_Response_Body, Statement, Update} from "../types/DatabaseTypes";
 import {pgntn_rspns_bdy} from "../types/InventoryTypes";
 
 export const gt_ll_cntrl = (req: Request, res: Response, next: NextFunction) =>
@@ -36,10 +36,10 @@ export const dlt_rspon_cntrl = (req: Request, res: Response, next: NextFunction)
 {
 	if(res.locals.result.rowCount !== 0)
 	{
-		res.status(200).json({message: `record with id ${req.body.id} successfully deleted`});
+		res.status(200).json({message: `record with id ${req.params.id} successfully deleted`});
 	} else
 	{
-		res.status(400).json({message: `record with id ${req.body.id} not found`});
+		res.status(400).json({message: `record with id ${req.params.id} not found`});
 	}
 }
 
@@ -96,12 +96,9 @@ export const prp_msrmnts_cntrl = (md: 'id' | 'nm' | 'symbol') =>
 				vl = req.params.name;
 				break;
 		}
-
-		res.locals.tb = 'measurements';
-		res.locals.prms = {
-			ky: ky,
-			vl: vl
-		} as Update;
+		res.locals.statement = {
+			q: 'SELECT * FROM measurements WHERE ' + ky + ' = \'' + vl + '\';',
+		} as Statement;
 
 		next();
 	}

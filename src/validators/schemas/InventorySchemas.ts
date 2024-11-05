@@ -5,7 +5,7 @@ export const barcode = z.object({
 });
 
 export const measurement_param_id = z.object({
-	id: z.string()
+	id: z.string({required_error: 'missing item id'})
 });
 
 export const measurement_param_name = z.object({

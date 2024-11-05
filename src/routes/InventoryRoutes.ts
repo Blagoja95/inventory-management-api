@@ -27,14 +27,12 @@ const rt = Router();
 rt.get('/v1/inventories/get/measurements/name/:name?',
 		validateData(measurement_param_name, true),
 		prp_msrmnts_cntrl('nm'),
-		fndrw,
 		db_wrppr,
 		gt_ll_cntrl)
 
 	.get('/v1/inventories/get/measurements/symbol/:name?',
 		validateData(measurement_param_name, true),
 		prp_msrmnts_cntrl('symbol'),
-		fndrw,
 		db_wrppr,
 		gt_ll_cntrl)
 
@@ -43,13 +41,12 @@ rt.get('/v1/inventories/get/measurements/name/:name?',
 	.get('/v1/inventories/get/measurements/:id',
 		validateData(measurement_param_id, true),
 		prp_msrmnts_cntrl('id'),
-		fndrw,
 		db_wrppr,
 		gt_ll_cntrl)
 
 	.get('/v1/inventories/get/measurements', vldt_pgntn_tms(pgntn_msrmnts_qry) ,gt_ll_msrmnts_db, db_wrppr,  hndl_pgntn_rspns_cntrl) // TODO pagination
 
-	.get('/v1/inventories/get/items/name/:name?') // TODO pagination
+	.get('/v1/inventories/get/items/name/:name?', vldt_pgntn_tms(pgntn_tms_qry)) // TODO pagination
 
     .get('/v1/inventories/get/items/count', cnt_db('articles'), db_wrppr, gt_cnt_cntrl)
 
@@ -70,18 +67,24 @@ rt.post('/v1/inventories/create/items',
 		db_wrppr,
 		gt_ll_cntrl);
 
-rt.delete('/v1/inventories/delete/measurements',
-		validateData(measurement_param_id),
+rt.delete('/v1/inventories/delete/measurements/:id',
+		validateData(measurement_param_id, true),
 		dlt_gnrc('measurements'),
 		db_wrppr,
 		dlt_rspon_cntrl)
 
-	.delete('/v1/inventories/delete/items',
-		validateData(barcode),
+	.delete('/v1/inventories/delete/items/:id',
+		validateData(barcode, true),
 		dlt_gnrc('articles'),
 		db_wrppr,
 		dlt_rspon_cntrl);
 
-rt.put('/v1/inventories/update'); // TODO update
+rt.put('/v1/inventories/update/items/price');
+rt.put('/v1/inventories/update/items/description');
+rt.put('/v1/inventories/update/items/name');
+rt.put('/v1/inventories/update/items/quantity');
+
+rt.put('/v1/inventories/update/measurement/name');
+rt.put('/v1/inventories/update/measurement/symbol');
 
 export default rt;
