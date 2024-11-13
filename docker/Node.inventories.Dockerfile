@@ -18,12 +18,10 @@ WORKDIR /app
 
 COPY package*.json ./
 
-RUN npm ci --only=production
+RUN npm ci --only=production  && npm i -g typescript
 
 COPY ./src ./src
 COPY tsconfig.json ./
-
-RUN npm install -g typescript cache
 
 RUN tsc
 

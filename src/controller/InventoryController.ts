@@ -133,3 +133,47 @@ const _generateBarCode = (): string =>
 
 	return result;
 }
+
+export const pdt_tms_cntrl = ( md: 'symbol' | 'm_name' | 'price' | 'description' | 'name' | 'quantity') =>
+{
+	return (req: Request, res: Response, next: NextFunction) =>
+	{
+		res.locals.statement = {
+			id: req.body.id,
+			ky: md,
+			vl: '',
+			tb: ''
+		} as Update;
+
+		switch (md)
+		{
+			case 'price':
+				res.locals.statement.vl = req.body.newPrice;
+				res.locals.statement.tb = 'articles';
+				break;
+
+			case 'description':
+				res.locals.statement.vl = `'${req.body.newDescription}'`;
+				res.locals.statement.tb = 'articles';
+				break;
+
+			case 'name':
+				res.locals.statement.vl = `'${req.body.newName}'`;
+				res.locals.statement.tb = 'articles';
+				break;
+
+			case 'm_name':
+				res.locals.statement.vl = `'${req.body.newName}'`;
+				res.locals.statement.ky = 'name';
+				res.locals.statement.tb = 'measurements';
+				break;
+
+			case 'symbol':
+				res.locals.statement.vl = `'${req.body.newName}'`;
+				res.locals.statement.tb = 'measurements';
+				break;
+		}
+
+		next();
+	}
+}

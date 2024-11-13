@@ -73,3 +73,15 @@ export const dlt_gnrc = (tb: string) =>
 		next();
 	}
 }
+
+export const pdty_rsrc_db = (req: Request, res: Response, next: NextFunction) =>
+{
+	res.locals.statement = {
+		q: 'UPDATE ' + res.locals.statement.tb +
+			' SET ' + res.locals.statement.ky + ' = ' + res.locals.statement.vl  +
+			' WHERE id = \'' +  res.locals.statement.id +
+			'\' RETURNING *;'
+	}
+
+	next();
+}

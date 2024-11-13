@@ -35,3 +35,23 @@ export const pgntn_tms_qry  = z.object({
 export const pgntn_msrmnts_qry  = pgntn_tms_qry.extend({
 	order_by: z.enum(['id', 'name', 'symbol']).default('id')
 });
+
+export const prc_bdy = barcode.extend({
+	newPrice: z.number({required_error: 'newPrice property is missing'}).finite().nonnegative()
+});
+
+export const dscrptn_bdy = barcode.extend({
+	newDescription: z.string({required_error: 'newDescription property is missing'})
+});
+
+export const nm_prprty =  z.object({
+	newName: z.string({required_error: 'newName property is missing'})
+});
+
+export const nm_bdy = barcode.merge(nm_prprty);
+export const nm_msrmnt_bdy = measurement_param_id.merge(nm_prprty);
+
+export const qntty_bdy = barcode.extend({
+	newDescription: z.string({required_error: 'newName property is missing'})
+});
+

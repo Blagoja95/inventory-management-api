@@ -11,6 +11,8 @@ export interface Count_Response_Body {
 export interface Update {
     ky: string,
     vl: any,
+	id?: string
     cl?: string,
-    cl_vl?: any
+    cl_vl?: any,
+	tb?: string
 }
